@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 680" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1020"/>
+      <stop offset="1" stop-color="#14213d"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#7c3aed"/>
+      <stop offset="1" stop-color="#06b6d4"/>
+    </linearGradient>
+    <filter id="sh" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#000" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="680" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="8" fill="url(#accent)"/>
+
+  <!-- Title -->
+  <text x="60" y="86" fill="#ffffff" font-size="44" font-weight="700">QLoRA Fine-Tune → Quantize → Serve with vLLM</text>
+  <text x="60" y="124" fill="#9fb3d1" font-size="22">Config-driven, reproducible, benchmarked. Mistral-7B-v0.3 · NF4 4-bit QLoRA · PEFT + TRL · AWQ · vLLM</text>
+
+  <!-- Pipeline -->
+  <g filter="url(#sh)">
+    <g>
+      <rect x="60"  y="180" width="180" height="92" rx="12" fill="#1e293b" stroke="url(#accent)" stroke-width="2"/>
+      <text x="150" y="222" fill="#e2e8f0" font-size="20" font-weight="600" text-anchor="middle">Data prep</text>
+      <text x="150" y="248" fill="#7dd3fc" font-size="14" text-anchor="middle">Dolly-15k → Alpaca</text>
+    </g>
+    <g>
+      <rect x="288" y="180" width="180" height="92" rx="12" fill="#1e293b" stroke="url(#accent)" stroke-width="2"/>
+      <text x="378" y="222" fill="#e2e8f0" font-size="20" font-weight="600" text-anchor="middle">QLoRA train</text>
+      <text x="378" y="248" fill="#7dd3fc" font-size="14" text-anchor="middle">4-bit NF4 · PEFT/TRL</text>
+    </g>
+    <g>
+      <rect x="516" y="180" width="180" height="92" rx="12" fill="#1e293b" stroke="url(#accent)" stroke-width="2"/>
+      <text x="606" y="222" fill="#e2e8f0" font-size="20" font-weight="600" text-anchor="middle">Evaluate</text>
+      <text x="606" y="248" fill="#7dd3fc" font-size="14" text-anchor="middle">base vs FT · ROUGE-L</text>
+    </g>
+    <g>
+      <rect x="744" y="180" width="180" height="92" rx="12" fill="#1e293b" stroke="url(#accent)" stroke-width="2"/>
+      <text x="834" y="222" fill="#e2e8f0" font-size="20" font-weight="600" text-anchor="middle">Merge + AWQ</text>
+      <text x="834" y="248" fill="#7dd3fc" font-size="14" text-anchor="middle">4-bit quantize</text>
+    </g>
+    <g>
+      <rect x="972" y="180" width="168" height="92" rx="12" fill="#1e293b" stroke="url(#accent)" stroke-width="2"/>
+      <text x="1056" y="222" fill="#e2e8f0" font-size="20" font-weight="600" text-anchor="middle">Serve (vLLM)</text>
+      <text x="1056" y="248" fill="#7dd3fc" font-size="14" text-anchor="middle">--enable-lora</text>
+    </g>
+  </g>
+  <!-- arrows -->
+  <g fill="#06b6d4">
+    <polygon points="244,226 268,226 268,220 284,229 268,238 268,232 244,232"/>
+    <polygon points="472,226 496,226 496,220 512,229 496,238 496,232 472,232"/>
+    <polygon points="700,226 724,226 724,220 740,229 724,238 724,232 700,232"/>
+    <polygon points="928,226 952,226 952,220 968,229 952,238 952,232 928,232"/>
+  </g>
+
+  <!-- Benchmark card -->
+  <g filter="url(#sh)">
+    <rect x="60" y="320" width="520" height="300" rx="14" fill="#0f172a" stroke="#334155" stroke-width="1.5"/>
+    <text x="84" y="360" fill="#ffffff" font-size="24" font-weight="700">Benchmarked, honestly</text>
+    <text x="84" y="394" fill="#94a3b8" font-size="16">Every run reports base vs fine-tuned:</text>
+    <g fill="#cbd5e1" font-size="16">
+      <text x="84" y="430">• Quality — ROUGE-L F1 · exact match (held-out)</text>
+      <text x="84" y="462">• Throughput — tokens / sec</text>
+      <text x="84" y="494">• Latency — TTFT · p50 · p95</text>
+      <text x="84" y="526">• VRAM — peak MiB · KV-cache %</text>
+    </g>
+    <text x="84" y="566" fill="#a78bfa" font-size="15">Regressions are kept in the table, not hidden.</text>
+    <text x="84" y="596" fill="#64748b" font-size="14">Reproducible: 1 YAML config + seed + uv.lock (Py 3.11)</text>
+  </g>
+
+  <!-- Stack / serving card -->
+  <g filter="url(#sh)">
+    <rect x="612" y="320" width="528" height="300" rx="14" fill="#0f172a" stroke="#334155" stroke-width="1.5"/>
+    <text x="636" y="360" fill="#ffffff" font-size="24" font-weight="700">Production-shaped serving</text>
+    <g font-size="15" font-weight="600">
+      <g><rect x="636" y="382" width="150" height="34" rx="17" fill="#312e81"/><text x="711" y="405" fill="#c7d2fe" text-anchor="middle">PyTorch + PEFT</text></g>
+      <g><rect x="796" y="382" width="110" height="34" rx="17" fill="#164e63"/><text x="851" y="405" fill="#a5f3fc" text-anchor="middle">TRL SFT</text></g>
+      <g><rect x="916" y="382" width="160" height="34" rx="17" fill="#3f2d1a"/><text x="996" y="405" fill="#fcd9b6" text-anchor="middle">bitsandbytes NF4</text></g>
+      <g><rect x="636" y="426" width="90" height="34" rx="17" fill="#1f3a2e"/><text x="681" y="449" fill="#bbf7d0" text-anchor="middle">AWQ</text></g>
+      <g><rect x="736" y="426" width="100" height="34" rx="17" fill="#3b1d2e"/><text x="786" y="449" fill="#fbcfe8" text-anchor="middle">vLLM</text></g>
+      <g><rect x="846" y="426" width="120" height="34" rx="17" fill="#1e293b"/><text x="906" y="449" fill="#e2e8f0" text-anchor="middle">Prometheus</text></g>
+      <g><rect x="976" y="426" width="100" height="34" rx="17" fill="#1e293b"/><text x="1026" y="449" fill="#e2e8f0" text-anchor="middle">Grafana</text></g>
+    </g>
+    <text x="636" y="500" fill="#94a3b8" font-size="16">OpenAI-compatible server · paged attention ·</text>
+    <text x="636" y="524" fill="#94a3b8" font-size="16">continuous batching · hot-swappable LoRA adapters</text>
+    <text x="636" y="560" fill="#cbd5e1" font-size="15">/metrics → Prometheus → Grafana (latency · tok/s · VRAM)</text>
+    <text x="636" y="594" fill="#64748b" font-size="14">Multi-stage CUDA Dockerfiles: train + serve</text>
+  </g>
+
+  <text x="60" y="660" fill="#475569" font-size="14">github.com/ejazfahil/QLoRA-Fine-Tune-Quantization-served-with-vLLM</text>
+</svg>

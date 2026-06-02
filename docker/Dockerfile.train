@@ -1,0 +1,27 @@
+# Training image: CUDA + PyTorch + PEFT/TRL/bitsandbytes for QLoRA.
+# Requires an NVIDIA GPU at run time (--gpus all).
+FROM nvidia/cuda:12.1.1-cudnn8-runtime-ubuntu22.04
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    PIP_NO_CACHE_DIR=1 \
+    HF_HOME=/workspace/.hf
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        python3.11 python3.11-venv python3-pip git && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /workspace
+
+# Install the project with the CUDA-only [gpu] extra (bitsandbytes, autoawq, wandb).
+COPY pyproject.toml README.md ./
+COPY common ./common
+RUN python3.11 -m pip install --upgrade pip && \
+    python3.11 -m pip install ".[gpu]"
+
+COPY . .
+
+# Default: train from a config. Override CMD/args as needed.
+#   docker run --gpus all -v $PWD/outputs:/workspace/outputs <img> \
+#       python3.11 -m train.train --config configs/mistral7b_qlora.yaml
+ENTRYPOINT ["python3.11"]
+CMD ["-m", "train.train", "--config", "configs/mistral7b_qlora.yaml"]

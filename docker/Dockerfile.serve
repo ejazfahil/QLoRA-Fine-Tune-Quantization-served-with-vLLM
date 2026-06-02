@@ -1,0 +1,22 @@
+# Serving image: vLLM OpenAI-compatible server with LoRA adapter support.
+# Built on the official vLLM image (CUDA + paged attention + continuous batching).
+FROM vllm/vllm-openai:latest
+
+WORKDIR /workspace
+
+# Bake in the launch helper + config so the container is self-describing.
+COPY serve/launch_vllm.sh /workspace/serve/launch_vllm.sh
+COPY configs /workspace/configs
+COPY common /workspace/common
+
+# Adapter + (optional) merged/quantized weights are mounted at run time, e.g.
+#   docker run --gpus all -p 8000:8000 \
+#       -v $PWD/outputs:/workspace/outputs <img> \
+#       --enable-lora --lora-modules mistral-ft=/workspace/outputs/<run>/adapter \
+#       --max-lora-rank 16 --model mistralai/Mistral-7B-v0.3
+EXPOSE 8000
+
+# The base image's entrypoint is `vllm serve`; pass args via CMD/run args.
+# To serve the AWQ-quantized merged model instead, add: --quantization awq
+HEALTHCHECK --interval=30s --timeout=5s --retries=10 \
+    CMD python3 -c "import urllib.request,sys; urllib.request.urlopen('http://localhost:8000/health'); sys.exit(0)" || exit 1

@@ -1,0 +1,66 @@
+# Production QLoRA config for Mistral-7B-v0.3 (open, EU-friendly base).
+# Targets ~16-24GB VRAM. Requires a CUDA GPU + `uv sync --extra gpu`.
+run_name: mistral7b-dolly-qlora
+base_model: mistralai/Mistral-7B-v0.3
+output_dir: outputs
+seed: 42
+report_to: none            # set to "wandb" or "trackio" to capture loss curves
+
+dataset:
+  hf_name: databricks/databricks-dolly-15k
+  instruction_field: instruction
+  input_field: context
+  output_field: response
+  max_samples: null         # use the full dataset
+  val_fraction: 0.05
+  test_fraction: 0.05
+  processed_dir: data/processed
+
+lora:
+  r: 16
+  alpha: 32
+  dropout: 0.05
+  bias: none
+  target_modules: [q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj]
+
+quant:
+  load_in_4bit: true
+  bnb_4bit_quant_type: nf4
+  bnb_4bit_use_double_quant: true
+  bnb_4bit_compute_dtype: bfloat16
+
+training:
+  learning_rate: 0.0002
+  num_train_epochs: 1
+  per_device_train_batch_size: 8
+  gradient_accumulation_steps: 2
+  max_seq_length: 1024
+  packing: true
+  warmup_ratio: 0.03
+  weight_decay: 0.0
+  lr_scheduler_type: cosine
+  logging_steps: 10
+  save_steps: 200
+  optim: paged_adamw_8bit
+  gradient_checkpointing: true
+  bf16: true
+  fp16: false
+  seed: 42
+
+awq:
+  bits: 4
+  group_size: 128
+  zero_point: true
+  calib_samples: 128
+
+eval:
+  max_new_tokens: 256
+  temperature: 0.0
+  num_samples: 200
+
+serve:
+  adapter_name: mistral-ft
+  max_lora_rank: 16
+  max_model_len: 4096
+  gpu_memory_utilization: 0.90
+  port: 8000

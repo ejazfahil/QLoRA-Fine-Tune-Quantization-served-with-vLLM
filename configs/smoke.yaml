@@ -1,0 +1,53 @@
+# Smoke config: proves the *entire* pipeline runs on a CPU/MPS Mac with a tiny
+# model and no bitsandbytes. Not a real training run -- it exists so you can
+# catch wiring bugs in seconds before renting a GPU.
+run_name: smoke
+base_model: HuggingFaceTB/SmolLM2-135M
+output_dir: outputs
+seed: 42
+report_to: none
+
+dataset:
+  hf_name: databricks/databricks-dolly-15k
+  instruction_field: instruction
+  input_field: context
+  output_field: response
+  max_samples: 64
+  val_fraction: 0.15
+  test_fraction: 0.15
+  processed_dir: data/processed_smoke
+
+lora:
+  r: 8
+  alpha: 16
+  dropout: 0.05
+  target_modules: [q_proj, k_proj, v_proj, o_proj]
+
+# 4-bit is force-disabled at runtime when CUDA is absent (see train/train.py).
+quant:
+  load_in_4bit: false
+
+training:
+  learning_rate: 0.0002
+  num_train_epochs: 1
+  per_device_train_batch_size: 2
+  gradient_accumulation_steps: 1
+  max_seq_length: 256
+  packing: false
+  logging_steps: 1
+  save_steps: 100
+  optim: adamw_torch
+  gradient_checkpointing: false
+  bf16: false
+  fp16: false
+  seed: 42
+
+eval:
+  max_new_tokens: 64
+  temperature: 0.0
+  num_samples: 8
+
+serve:
+  adapter_name: smoke-ft
+  max_lora_rank: 8
+  max_model_len: 1024

@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# Data: keep the documented sample, ignore the generated full splits
+data/processed*/
+data/**/*.jsonl
+data/*.jsonl
+!data/sample.jsonl
+
+# Model artifacts
+outputs/
+adapters/
+merged/
+quantized/
+*.safetensors
+*.bin
+
+# Experiment tracking
+wandb/
+trackio/
+
+# Env / secrets
+.env
+
+# OS
+.DS_Store
