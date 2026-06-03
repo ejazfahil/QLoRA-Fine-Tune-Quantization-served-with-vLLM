@@ -15,6 +15,7 @@
   <img alt="quant" src="https://img.shields.io/badge/4--bit-NF4%20%2F%20AWQ-f59e0b">
   <img alt="vLLM" src="https://img.shields.io/badge/serving-vLLM-db2777">
   <img alt="repro" src="https://img.shields.io/badge/reproducible-uv.lock%20%2B%20seed-06b6d4">
+  <a href="https://github.com/ejazfahil/QLoRA-Fine-Tune-Quantization-served-with-vLLM/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/ejazfahil/QLoRA-Fine-Tune-Quantization-served-with-vLLM/actions/workflows/ci.yml/badge.svg"></a>
 </p>
 
 ---
