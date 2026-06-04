@@ -21,5 +21,3 @@ class EvalTracker:
     def best_loss(self): return min(s.loss for s in self.snapshots) if self.snapshots else float("inf")
     def to_json(self): return json.dumps([{"step":s.step,"loss":s.loss,"ppl":s.perplexity}
                                           for s in self.snapshots], indent=2)
-
-# ts:2026-06-04T14:00:00
