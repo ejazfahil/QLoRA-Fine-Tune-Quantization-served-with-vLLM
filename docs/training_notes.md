@@ -10,3 +10,5 @@
 - 2 epochs, batch size 4, grad accum 4
 - LR 2e-4, cosine schedule
 - Training time: ~3h on single A100 40GB
+
+# ts:2026-06-08T15:15:00
