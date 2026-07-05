@@ -1,0 +1,55 @@
+# CPU proxy experiment: a *real* (not 3-step) LoRA fine-tune of a small BASE model
+# on an instruction dataset, run end-to-end on CPU/MPS with no bitsandbytes. It
+# exists to validate the thesis directionally without a GPU — teaching a base model
+# the instruction/response format should lift held-out ROUGE-L. The 7B QLoRA numbers
+# (configs/{mistral7b,llama2_7b}_qlora.yaml) still require a CUDA GPU; see docs/benchmarks.md.
+run_name: cpu_experiment
+base_model: HuggingFaceTB/SmolLM2-135M
+output_dir: outputs
+seed: 42
+report_to: none
+
+dataset:
+  hf_name: databricks/databricks-dolly-15k
+  instruction_field: instruction
+  input_field: context
+  output_field: response
+  max_samples: 400
+  val_fraction: 0.1
+  test_fraction: 0.1
+  processed_dir: data/processed_cpu_experiment
+
+lora:
+  r: 16
+  alpha: 32
+  dropout: 0.05
+  target_modules: [q_proj, k_proj, v_proj, o_proj]
+
+# 4-bit is force-disabled at runtime when CUDA is absent (see train/train.py).
+quant:
+  load_in_4bit: false
+
+training:
+  learning_rate: 0.0002
+  num_train_epochs: 3
+  per_device_train_batch_size: 4
+  gradient_accumulation_steps: 1
+  max_seq_length: 256
+  packing: false
+  logging_steps: 10
+  save_steps: 1000
+  optim: adamw_torch
+  gradient_checkpointing: false
+  bf16: false
+  fp16: false
+  seed: 42
+
+eval:
+  max_new_tokens: 64
+  temperature: 0.0
+  num_samples: 40
+
+serve:
+  adapter_name: cpu-experiment-ft
+  max_lora_rank: 16
+  max_model_len: 1024

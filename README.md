@@ -49,6 +49,25 @@ config, and the standard **Hugging Face PEFT + TRL** training path with
 > tables therefore ship **methodology-first** with `PENDING GPU RUN` placeholders
 > that the documented commands populate on any CUDA GPU. No numbers are fabricated.
 
+### 📈 CPU proxy result (real, committed)
+
+Beyond wiring, a **genuine** LoRA fine-tune of a *base* 135M model (`SmolLM2-135M`)
+on Dolly — 320/40/40 split, **3 epochs (240 steps)**, held-out N=40, scored by the
+same harness as the GPU path — supports the thesis directionally on CPU:
+
+| Variant | ROUGE-L F1 | Exact match |
+|---|:---:|:---:|
+| Base | 0.192 | 0.000 |
+| **Fine-tuned (LoRA)** | **0.259** | **0.025** |
+| **Δ** | **+0.067 (+35%)** | +0.025 |
+
+<p align="center"><img src="results/cpu_experiment/plots/base_vs_finetuned.png" alt="base vs fine-tuned (CPU proxy)" width="60%"></p>
+
+Training loss fell 3.04 → 2.00. It's a 135M model (not 7B) and N=40 is small, so
+treat it as directional — the **7B QLoRA / AWQ / vLLM tables remain `PENDING GPU
+RUN`**. Full write-up, caveats, and `make experiment` reproduce command in
+[`docs/benchmarks.md`](docs/benchmarks.md); artifacts in `results/cpu_experiment/`.
+
 ## ✅ Achievements / Definition of Done
 
 - [x] **Config-driven training** — one `configs/*.yaml` drives the whole pipeline

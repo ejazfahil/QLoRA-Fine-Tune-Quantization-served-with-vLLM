@@ -1,0 +1,16 @@
+{
+  "base": {
+    "rougeL_f1": 0.1923,
+    "exact_match": 0.0,
+    "n": 40.0,
+    "latency_p50_s": 0.7728,
+    "latency_p95_s": 0.9698
+  },
+  "finetuned": {
+    "rougeL_f1": 0.2593,
+    "exact_match": 0.025,
+    "n": 40.0,
+    "latency_p50_s": 0.9128,
+    "latency_p95_s": 1.1619
+  }
+}

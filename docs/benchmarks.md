@@ -114,14 +114,33 @@ make serve CONFIG=configs/mistral7b_qlora.yaml &       # vLLM on :8000
 uv run python -m eval.benchmark --config configs/mistral7b_qlora.yaml --backend vllm
 ```
 
-## Smoke evidence (local, CPU, tiny model)
-Proof the harness runs end-to-end (not a real result — 3 training steps on a
-135M model):
+## CPU proxy experiment (real, local — validates the thesis without a GPU)
 
-| Variant    | ROUGE-L F1 | Exact match | Latency p50 (s) |
-| ---------- | ---------- | ----------- | --------------- |
-| Base       | 0.1822     | 0.0         | 0.78            |
-| Fine-tuned | 0.1616     | 0.0         | 0.93            |
+A genuine LoRA fine-tune of a **base** model (`HuggingFaceTB/SmolLM2-135M`, 4-bit
+disabled — no bitsandbytes) on Dolly, run end-to-end on CPU: **320 train / 40 val /
+40 test** (seed 42), **3 epochs = 240 steps**, greedy decode, scored by the *same*
+harness as the GPU path. Config `configs/cpu_experiment.yaml`; artifacts committed
+under `results/cpu_experiment/`.
 
-→ Fine-tuning *reduced* ROUGE-L here, as expected for 3 steps — a clean
-demonstration that the pipeline reports regressions faithfully.
+| Variant           | ROUGE-L F1        | Exact match | Latency p50 (s)        |
+| ----------------- | ----------------- | ----------- | ---------------------- |
+| Base              | 0.192             | 0.000       | 0.77                   |
+| Fine-tuned (LoRA) | **0.259**         | **0.025**   | 0.91                   |
+| **Δ (FT − base)** | **+0.067 (+35%)** | +0.025      | +0.14 (adapter overhead) |
+
+Training loss fell **3.04 → 2.00** over 240 steps. Teaching a base model the
+instruction/response format lifts held-out ROUGE-L and exact-match — **the thesis
+holds on this proxy.** Caveats kept honest: it is a 135M model (not 7B), N=40 is
+small, and ROUGE/EM reward surface overlap (see §4); the 7B **QLoRA** numbers above
+still require a CUDA GPU run.
+
+![base vs fine-tuned — CPU proxy](../results/cpu_experiment/plots/base_vs_finetuned.png)
+
+Reproduce (CPU, no GPU needed):
+
+```bash
+python -m data.prepare_data --config configs/cpu_experiment.yaml
+python -m train.train        --config configs/cpu_experiment.yaml     # ~4 min CPU
+python -m eval.benchmark     --config configs/cpu_experiment.yaml --backend hf
+# or, in one shot:  make experiment
+```

@@ -102,7 +102,13 @@ def train(config: PipelineConfig, smoke: bool = False) -> str:
     fp16 = tcfg.fp16 and cuda
     grad_ckpt = tcfg.gradient_checkpointing and cuda
 
-    sft_args = SFTConfig(
+    # SFTConfig / SFTTrainer keyword names have drifted across trl versions
+    # (e.g. max_seq_length -> max_length, tokenizer -> processing_class). Build the
+    # kwargs, then filter/rename to whatever the installed trl actually accepts so
+    # the same code runs on the pinned (3.11) lock and on newer trl.
+    import inspect
+
+    sft_kwargs = dict(
         output_dir=str(config.trainer_dir),
         dataset_text_field="text",
         max_seq_length=tcfg.max_seq_length,
@@ -126,15 +132,22 @@ def train(config: PipelineConfig, smoke: bool = False) -> str:
         report_to=[] if config.report_to == "none" else [config.report_to],
         run_name=config.run_name,
     )
+    sft_params = set(inspect.signature(SFTConfig.__init__).parameters)
+    if "max_seq_length" not in sft_params and "max_length" in sft_params:
+        sft_kwargs["max_length"] = sft_kwargs.pop("max_seq_length")
+    sft_args = SFTConfig(**{k: v for k, v in sft_kwargs.items() if k in sft_params})
 
-    trainer = SFTTrainer(
+    trainer_kwargs = dict(
         model=model,
         args=sft_args,
         train_dataset=dsets["train"],
         eval_dataset=dsets["val"],
         peft_config=peft_config,
-        tokenizer=tokenizer,
     )
+    trainer_params = set(inspect.signature(SFTTrainer.__init__).parameters)
+    tok_key = "processing_class" if "processing_class" in trainer_params else "tokenizer"
+    trainer_kwargs[tok_key] = tokenizer
+    trainer = SFTTrainer(**trainer_kwargs)
 
     logger.info("Starting training (%s steps target)...", "3 (smoke)" if smoke else "full")
     trainer.train()

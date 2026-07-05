@@ -1,4 +1,4 @@
-.PHONY: help setup data smoke train eval merge quantize serve lint typecheck test check clean
+.PHONY: help setup data smoke experiment train eval merge quantize serve lint typecheck test check clean
 
 UV ?= uv
 
@@ -6,7 +6,8 @@ help:
 	@echo "Targets:"
 	@echo "  setup      Create the locked Python 3.11 env (CPU/dev deps)"
 	@echo "  data       Build the instruction dataset splits (seeded)"
-	@echo "  smoke      Run the tiny-model CPU/MPS pipeline smoke test"
+	@echo "  smoke      Run the tiny-model CPU/MPS pipeline smoke test (3 steps)"
+	@echo "  experiment Real CPU proxy: data + LoRA train + base-vs-FT eval (no GPU)"
 	@echo "  train      QLoRA train from a config (GPU):  make train CONFIG=configs/mistral7b_qlora.yaml"
 	@echo "  eval       Base-vs-finetuned benchmark:      make eval CONFIG=configs/mistral7b_qlora.yaml"
 	@echo "  merge      Merge adapter into base (GPU)"
@@ -25,6 +26,11 @@ data:
 
 smoke:
 	$(UV) run python -m train.train --config configs/smoke.yaml --smoke
+
+experiment:
+	$(UV) run python -m data.prepare_data --config configs/cpu_experiment.yaml
+	$(UV) run python -m train.train --config configs/cpu_experiment.yaml
+	$(UV) run python -m eval.benchmark --config configs/cpu_experiment.yaml --backend hf
 
 train:
 	$(UV) run python -m train.train --config $(CONFIG)
